@@ -47,7 +47,7 @@ $status = $kernel->handle(
 | down the process. This is the last thing to happen to the request.
 |
 */
-
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 $kernel->terminate($input, $status);
 
 exit($status);
