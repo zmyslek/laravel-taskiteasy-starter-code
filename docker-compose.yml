@@ -4,6 +4,8 @@ services:
       context: .
 #    image: assignment2
     container_name: devops2
+    networks:
+      - lamp-network
     volumes:
       - .:/var/www/html
     expose:
@@ -26,14 +28,20 @@ services:
     image: mysql:8.0
     container_name: mysql_db
     ports:
-      - "3306:3306"
+      - "3360:3306"
     environment:
       MYSQL_DATABASE: laravel
-      MYSQL_USER: user
+      MYSQL_USER: root
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: rootsecret
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - lamp-network
 
 volumes:
   db_data:
+
+networks:
+  lamp-network:
+    driver: bridge
