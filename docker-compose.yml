@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .
-    image: assignment2
+#    image: assignment2
     container_name: devops2
     volumes:
       - .:/var/www/html
