@@ -49,6 +49,9 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 RUN a2enmod rewrite
 
 EXPOSE 80
+RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+
+# Use Heroku-provided PORT
 RUN echo "Listen ${PORT:-80}" >> /etc/apache2/ports.conf
 
 CMD ["apache2-foreground"]
