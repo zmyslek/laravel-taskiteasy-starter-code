@@ -42,16 +42,16 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Set correct permissions for Laravel
 RUN chown -R www-data:www-data storage bootstrap/cache
-
-# Enable apache rewrite module for Laravel
 RUN a2enmod rewrite
 
-EXPOSE 80
+# Fix MPM conflict
 RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
 
-# Use Heroku-provided PORT
-RUN echo "Listen ${PORT:-80}" >> /etc/apache2/ports.conf
+# Allow Apache to use Heroku-assigned port
+RUN echo "Listen ${PORT}" >> /etc/apache2/ports.conf
+
+EXPOSE 80
 
 CMD ["apache2-foreground"]
+
