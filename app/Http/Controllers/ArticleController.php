@@ -30,7 +30,21 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate input
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'excerpt' => 'required|string|max:500',
+            'img_url' => 'nullable|url|max:255',
+            'body' => 'required|string',
+            'published_at' => 'nullable|date',
+        ]);
+
+        // Create article
+        $article = Article::create($validated);
+
+        // Redirect to the newly created article
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Article created successfully.');
     }
 
     /**
@@ -48,7 +62,8 @@ class ArticleController extends Controller
      */
     public function edit(Article $article)
     {
-        //
+        // Pass the article to the edit view
+        return view('articles.edit', compact('article'));
     }
 
     /**
@@ -56,14 +71,32 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article)
     {
-        //
+        // Validate input
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'excerpt' => 'required|string|max:500',
+            'img_url' => 'nullable|url|max:255',
+            'body' => 'required|string',
+            'published_at' => 'nullable|date',
+        ]);
+
+        // Update article with validated data
+        $article->update($validated);
+
+        // Redirect back to the article page with success message
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Article updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Article $article)
     {
-        //
+        $article->delete();
+
+        return redirect()->route('articles.index')
+            ->with('success', 'Article deleted successfully.');
     }
 }

@@ -24,3 +24,4 @@ Route::get('/', function () {
 
 // Resource routes of the base pages. For more info on Resource Routes
 Route::resource('/articles', ArticleController::class);
+

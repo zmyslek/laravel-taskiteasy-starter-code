@@ -24,7 +24,9 @@
                             <a href="{{ route('articles.show', $article) }}">
                                 <strong>{{ $article->title }}</strong>
                             </a>
-                            <small>{{ $article->published_at->diffForHumans() }}</small>
+                            <small>
+                                {{ $article->published_at?->diffForHumans() ?? 'Unpublished' }}
+                            </small>
                             <br>
                             {{ $article->excerpt }}
                         </p>
