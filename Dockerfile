@@ -49,5 +49,6 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 RUN a2enmod rewrite
 
 EXPOSE 80
+RUN echo "Listen ${PORT:-80}" >> /etc/apache2/ports.conf
 
 CMD ["apache2-foreground"]
