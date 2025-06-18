@@ -18,5 +18,12 @@ RUN composer install
 
 #RUN php artisan migrate && \
 #    php artisan serve
+# Set correct permissions for Laravel
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+# Enable apache rewrite module for Laravel
+RUN a2enmod rewrite
 
 EXPOSE 9000
+
+CMD ["apache2-foreground"]
