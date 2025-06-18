@@ -45,13 +45,14 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data storage bootstrap/cache
 RUN a2enmod rewrite
 
-# Fix MPM conflict
+# Fix: Disable conflicting MPMs and enable only prefork
 RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
 
-# Allow Apache to use Heroku-assigned port
+# Make Apache listen to Heroku-assigned $PORT
 RUN echo "Listen ${PORT}" >> /etc/apache2/ports.conf
 
 EXPOSE 80
 
 CMD ["apache2-foreground"]
+
 
