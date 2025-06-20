@@ -19,7 +19,8 @@ services:
       - "80:80"
     volumes:
       - .:/var/www/html
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - lamp-network
     depends_on:

@@ -22,37 +22,42 @@
 #EXPOSE 9000
 
 
+# Stage 1: PHP-FPM base
+FROM php:8.2-fpm AS php-base
 
-FROM php:8.2-apache
+# Install PHP extensions
+RUN apt-get update && apt-get install -y \
+    git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev zip \
+    && docker-php-ext-install pdo pdo_mysql zip mbstring exif pcntl
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    git curl unzip zip libzip-dev libpng-dev libonig-dev libxml2-dev \
-    libjpeg-dev libfreetype6-dev gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    docker-php-ext-configure zip && \
-    docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Set working dir
 WORKDIR /var/www/html
+
+# Copy Laravel app
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev
 
-RUN chown -R www-data:www-data storage bootstrap/cache
-RUN a2enmod rewrite
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
-# Fix: Disable conflicting MPMs and enable only prefork
-RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+# Stage 2: Final container with PHP + Nginx
+FROM nginx:alpine
 
-# Make Apache listen to Heroku-assigned $PORT
-RUN echo "Listen ${PORT}" >> /etc/apache2/ports.conf
+# Copy Laravel app and nginx config
+COPY --from=php-base /var/www/html /var/www/html
+COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 80
+# Copy php-fpm socket service if you're running them together in same container
+RUN apk add --no-cache php8 php8-fpm php8-mysqli php8-pdo php8-pdo_mysql
 
-CMD ["apache2-foreground"]
+# Set working directory
+WORKDIR /var/www/html
 
-
+# Start services
+CMD ["sh", "-c", "php-fpm8 && nginx -g 'daemon off;'"]
