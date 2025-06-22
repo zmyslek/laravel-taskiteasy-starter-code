@@ -52,7 +52,7 @@
                                 </div>
                             </div>
                             <footer class="card-footer">
-                                <p class="card-footer-item"><small>Published: {{ $article->published_at?->diffForHumans() }}</small></p>
+                                <p class="card-footer-item"><small>Published: {{ $article->published_at?->diffForHumans() ?? 'Undefined'}}</small></p>
                             </footer>
                         </div>
                     </div>
