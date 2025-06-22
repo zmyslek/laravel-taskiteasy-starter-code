@@ -21,22 +21,30 @@
 #
 #EXPOSE 9000
 
+FROM php:8.2-fpm
 
-# Stage 1: PHP-FPM base
-FROM php:8.2-fpm AS php-base
-
-# Install PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev zip \
+    # Add Node.js repository and install Node.js
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    # Install PHP extensions
     && docker-php-ext-install pdo pdo_mysql zip mbstring exif pcntl
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working dir
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy Laravel app
+# Copy package.json and package-lock.json first for better caching
+COPY package*.json ./
+
+# Install npm dependencies
+RUN npm install
+
+# Copy the rest of the application
 COPY . .
 
 # Install PHP dependencies
@@ -44,20 +52,3 @@ RUN composer install --optimize-autoloader --no-dev
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
-
-# Stage 2: Final container with PHP + Nginx
-FROM nginx:alpine
-
-# Copy Laravel app and nginx config
-COPY --from=php-base /var/www/html /var/www/html
-COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY ./docker/nginx.conf /etc/nginx/nginx.conf
-
-# Copy php-fpm socket service if you're running them together in same container
-RUN apk add --no-cache php8 php8-fpm php8-mysqli php8-pdo php8-pdo_mysql
-
-# Set working directory
-WORKDIR /var/www/html
-
-# Start services
-CMD ["sh", "-c", "php-fpm8 && nginx -g 'daemon off;'"]
