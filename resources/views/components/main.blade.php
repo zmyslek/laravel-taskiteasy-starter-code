@@ -33,6 +33,14 @@
                            class="navbar-item {{ request()->route()->getName() === 'articles.index' ? "is-active" : "" }}">
                             News
                         </a>
+                        @auth
+                            <a href="#" class="navbar-item " onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                Logout
+                            </a>
+                            <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display: none;">
+                                @csrf
+                            </form>
+                        @endauth
                     </div>
                 </div>
             </div>

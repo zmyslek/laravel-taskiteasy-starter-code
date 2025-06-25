@@ -23,5 +23,10 @@ Route::get('/', function () {
 })->name('home');
 
 // Resource routes of the base pages. For more info on Resource Routes
-Route::resource('/articles', ArticleController::class);
+Route::resource('/articles', ArticleController::class)->middleware('auth');
 
+use App\Http\Controllers\Auth\LoginController;
+
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

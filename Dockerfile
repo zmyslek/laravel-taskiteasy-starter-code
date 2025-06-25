@@ -26,10 +26,8 @@ FROM php:8.2-fpm
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev zip \
-    # Add Node.js repository and install Node.js
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
-    # Install PHP extensions
     && docker-php-ext-install pdo pdo_mysql zip mbstring exif pcntl
 
 # Install Composer
@@ -38,17 +36,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy package.json and package-lock.json first for better caching
-COPY package*.json ./
-
-# Install npm dependencies
-RUN npm install
-
 # Copy the rest of the application
 COPY . .
 
 # Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
+RUN composer install --optimize-autoloader #--no-dev
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
